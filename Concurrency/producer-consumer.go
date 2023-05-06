@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime"
 	"sync"
+	"time"
 )
 
 const (
@@ -13,7 +14,11 @@ const (
 )
 
 func main() {
+	startTime := time.Now()
 	// Set the number of CPU cores used by the program to 1
+	var m runtime.MemStats
+
+	runtime.ReadMemStats(&m) // read current memory statistics
 	runtime.GOMAXPROCS(1)
 
 	var wg sync.WaitGroup
@@ -40,5 +45,14 @@ func main() {
 	}
 
 	wg.Wait()
+
 	fmt.Println("Done")
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+
+	peakMemoryUsage := float64(memStats.HeapSys) / (1024 * 1024)
+	fmt.Printf("Peak memory usage: %.2f MB\n", peakMemoryUsage)
+
+	elapsedTime := time.Since(startTime)
+	fmt.Printf("Total execution time: %.6f seconds\n", elapsedTime.Seconds())
 }
